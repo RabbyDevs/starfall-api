@@ -1,0 +1,15 @@
+{
+  "name": "roblox-image-finder",
+  "version": "0.1.0",
+  "description": "image grabbing done right",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "rabbydevs :3",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "@shiinazzz/rbxm-reader": "^1.0.3",
+    "rbxlx-parser": "^1.0.1"
+  }
+}
