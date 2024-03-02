@@ -1,15 +1,12 @@
 const rbxlx = require("@shiinazzz/rbxm-reader");
+const fs = require("fs");
 const express = require('express');
 const app = express ();
 app.use(express.json());
 const PORT = process.env.PORT || 2530;
-console.log(PORT)
-app.listen(PORT, () => {
-    console.log("Server Listening on PORT:", PORT);
-  });
+if (!fs.existsSync('./cache')) fs.mkdirSync('./cache')
 const axios = require('axios');
 const crypto = require("crypto");
-const fs = require("fs");
 const { XMLParser, XMLBuilder, XMLValidator} = require("fast-xml-parser");
 
 async function asset(assetId) {
@@ -58,3 +55,7 @@ app.get("/image", async(request, response) => {
     fs.unlinkSync(imageIdData[1])
     response.send(imageIdData[0]);
  });
+
+app.listen(PORT, () => {
+    console.log("Server Listening on PORT:", PORT);
+});
