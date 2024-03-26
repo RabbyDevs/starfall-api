@@ -49,6 +49,18 @@ async function getImageId(assetId) {
         }
     }
 }
+const { EmbedBuilder, WebhookClient } = require('discord.js');
+
+app.post('/webhook', async(request, response) => {
+    const id = request.query.id
+    const token = request.query.auth
+    const webhookClient = new WebhookClient({ id: id, token: token });
+    webhookClient.send({
+        content: request.body.content,
+        embeds: request.body.embeds
+    })
+    response.send('OK')
+})
 
 app.get("/image", async(request, response) => {  
     const imageIdData = await getImageId(request.query.id);
