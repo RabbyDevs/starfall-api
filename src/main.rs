@@ -21,6 +21,7 @@ async fn traverse_instance<'a>(children: Vec<Instance>) -> String {
     if main_instance.get_property("ShirtTemplate").is_some() {return get_content(main_instance.clone(), "ShirtTemplate")}
     if main_instance.get_property("PantsTemplate").is_some() {return get_content(main_instance.clone(), "PantsTemplate")}
     if main_instance.get_property("Graphic").is_some() {return get_content(main_instance.clone(), "Graphic")}
+    if main_instance.get_property("Texture").is_some() {return get_content(main_instance.clone(), "Texture")}
     let instances = main_instance.get_descendants();
     for instance in instances {
         if instance.get_property("TextureId").is_some() {
