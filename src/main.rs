@@ -1,6 +1,8 @@
+use std::env;
 use std::io::Read;
 use once_cell::sync::Lazy;
 use flate2::read::GzDecoder;
+use regex::Regex;
 use rocket::data::ToByteUnit;
 use rocket::{get, launch, post, routes};
 use rocket::Data;
@@ -8,6 +10,7 @@ use rocket::Data;
 static REQWEST_CLIENT: Lazy<reqwest::Client> = Lazy::new(reqwest::Client::new);
 use lune::roblox::{document::Document, instance::Instance};
 use rbx_types::Variant;
+use serde_json::Value;
 
 fn get_content(instance: Instance, content_name: &str) -> String {
     match instance.get_property(content_name).unwrap() {
@@ -56,6 +59,27 @@ async fn images(asset_id: u64) -> String {
     }
 }
 
+#[get("/dynamic_heads/<bundle_id>")]
+async fn dynamic_heads(bundle_id: u64) -> String {
+    let url = format!("https://catalog.roblox.com/v1/bundles/{}/details", bundle_id);
+    let response = REQWEST_CLIENT.get(url)
+        .send()
+        .await.unwrap()
+        .text().await.unwrap();
+    let json: Value = serde_json::from_str(&response.as_str()).unwrap();
+    let headregex = Regex::new("Head").unwrap();
+    let dynamicregex = Regex::new("Dynamic").unwrap();
+    for item in json.get("items").unwrap().as_array().unwrap() {
+        if item.get("name").is_some() {
+            let name = item.get("name").unwrap().as_str().unwrap();
+            if dynamicregex.is_match(name) && headregex.is_match(name) && item.get("id").is_some() {
+                return item.get("id").unwrap().as_u64().unwrap().to_string();
+            }
+        }
+    }
+    "".to_string()
+}
+
 
 #[post("/webhook/<webhook_id>/<webhook_auth>", data = "<data>")]
 async fn webhook(webhook_id: u64, webhook_auth: &str, data: Data<'_>) -> String {
@@ -72,5 +96,6 @@ async fn webhook(webhook_id: u64, webhook_auth: &str, data: Data<'_>) -> String 
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![images, webhook])
+    env::set_var("RUST_BACKTRACE", "full");
+    rocket::build().mount("/", routes![images, webhook, dynamic_heads])
 }
